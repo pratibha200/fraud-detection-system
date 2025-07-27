@@ -1,0 +1,72 @@
+import numpy as np
+import pandas as pd
+from numpy import random
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import warnings
+import pickle
+#%%
+pf_set =pd.read_csv(r"C:\Users\drkks\OneDrive\Desktop\major1\onlinefraud.csv")
+#%%
+pf_set.shape
+#%%
+pf_set.head()
+#%%
+pf_set.info()
+#%%
+pf_set.isnull().sum()
+#%%
+pf_set['isFraud'].value_counts()
+#%%
+type=pf_set["type"].value_counts()
+transaction = type.index
+quantity = type.values
+import plotly .express as px
+figure=px.pie(pf_set,values=quantity , hole=0.5,)
+figure.show()
+#%%
+correlation = pf_set.corr()
+print(correlation["isFraud"].sort_values(ascending=False))
+#%%
+pf_set["type"]=pf_set["type"].map({"CASH_OUT":1,"PAYMENT":2,"CASH_IN":3,"TRANSFER":4,"DEBIT":5})
+pf_set["isFraud"]=pf_set["isFraud"].map({0:"No froud",1:"froud"})
+pf_set.head()
+#%%
+x= pf_set[['type','amount','oldbalanceOrg','newbalanceOrig']]
+y = pf_set.iloc[:,-2]
+#%%
+y
+
+#%%
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+#%%
+model = LogisticRegression()
+#%%
+x_train, x_test, y_train, y_test = train_test_split(x,y , test_size=0.2)
+#%%
+x_train = x_train.dropna()
+y_train = y_train.dropna()
+#%%
+from sklearn.impute import SimpleImputer
+
+imputer = SimpleImputer(strategy='mean')
+x_train = imputer.fit_transform(x_train)
+#%%
+model.fit(x_train,y_train)
+#%%
+x_train = pd.DataFrame(x_train)
+y_train = pd.DataFrame(y_train)
+
+# Check for NaN values in x_train and y_train
+print(x_train.isnull().sum())
+print(y_train.isnull().sum())
+#%%
+model.score(x_test,y_test)
+#%%
+import pickle
+
+with open('lgmodel.pkl','wb') as model_file:
+    pickle.dump(model, model_file, protocol=2)
